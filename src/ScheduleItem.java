@@ -30,6 +30,8 @@ public class ScheduleItem {
         if (title == null) {
             throw new RuntimeException("비어있을 수 없습니다");
         }
+        this.title = title;
+        this.description = description;
         try {
             this.startDate = LocalDate.parse(startDate);
         } catch (RuntimeException e) {
@@ -63,6 +65,7 @@ public class ScheduleItem {
 
         this.createdAt = LocalDate.now();
         this.updateAt = LocalTime.now();
+        this.isCompleted = isCompleted;
     }
 
     public void displayInfo() {
