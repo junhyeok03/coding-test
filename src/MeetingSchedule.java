@@ -1,6 +1,3 @@
-import java.time.LocalDate;
-import java.time.LocalTime;
-
 public class MeetingSchedule extends ScheduleItem {
 
     private String location;
@@ -11,6 +8,14 @@ public class MeetingSchedule extends ScheduleItem {
 
     public MeetingSchedule(String title, String description, String startDate, String endDate, String startTime, String endTime, String prioeity, boolean isCompleted, String location, String participants, String agenda, String host) {
         super(title, description, startDate, endDate, startTime, endTime, prioeity, isCompleted);
+        this.location = location;
+        this.participants = participants;
+        this.agenda = agenda;
+        this.host = host;
+    }
+
+    public MeetingSchedule(int id, String title, String description, String startDate, String endDate, String startTime, String endTime, String prioeity, boolean isCompleted, String location, String participants, String agenda, String host) {
+        super(id, title, description, startDate, endDate, startTime, endTime, prioeity, isCompleted);
         this.location = location;
         this.participants = participants;
         this.agenda = agenda;

@@ -9,20 +9,36 @@ public class ReminderSchedule extends ScheduleItem {
 
     public ReminderSchedule(String title, String description, String startDate, String endDate, String startTime, String endTime, String prioeity, boolean isCompleted, String reminderTime, String reminderMessage, String notificationType, boolean isReminderSent) {
         super(title, description, startDate, endDate, startTime, endTime, prioeity, isCompleted);
+        init(reminderTime, reminderMessage, notificationType, isReminderSent);
+    }
+
+    public ReminderSchedule(int id, String title, String description, String startDate, String endDate, String startTime, String endTime, String prioeity, boolean isCompleted, String reminderTime, String reminderMessage, String notificationType, boolean isReminderSent) {
+        super(id, title, description, startDate, endDate, startTime, endTime, prioeity, isCompleted);
+        init(reminderTime, reminderMessage, notificationType, isReminderSent);
+    }
+
+    private void init(String reminderTime, String reminderMessage, String notificationType, boolean isReminderSent) {
         try {
             this.reminderTime = LocalTime.parse(reminderTime);
         } catch (RuntimeException e) {
-            throw new RuntimeException("시작일은 HH:MM 형식이어야 합니다");
+            throw new RuntimeException("알림 시간은 HH:mm 형식이어야 합니다");
         }
         this.reminderMessage = reminderMessage;
-        try {
-            if (notificationType.equals("POPUP") || notificationType.equals("SOUND") || notificationType.equals("MESSAGE")) {
-                this.notificationType = notificationType;
-            }
-        } catch (RuntimeException e) {
-            throw new RuntimeException("하나만 사용 가능합니다");
+        if (notificationType.equals("POPUP") || notificationType.equals("SOUND") || notificationType.equals("MESSAGE")) {
+            this.notificationType = notificationType;
+        } else {
+            throw new RuntimeException("알림 타입은 POPUP, SOUND, MESSAGE 중 하나여야 합니다.");
         }
         this.isReminderSent = isReminderSent;
+    }
+
+    @Override
+    public void displayInfo() {
+        super.displayInfo();
+        System.out.println("알림 시간 : " + reminderTime);
+        System.out.println("알림 메시지 : " + reminderMessage);
+        System.out.println("알림 타입 : " + notificationType);
+        System.out.println("알림 발송 여부 : " + isReminderSent);
     }
 
     @Override

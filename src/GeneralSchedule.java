@@ -1,6 +1,3 @@
-import java.time.LocalDate;
-import java.time.LocalTime;
-
 public class GeneralSchedule extends ScheduleItem {
 
     private String category;
@@ -10,6 +7,13 @@ public class GeneralSchedule extends ScheduleItem {
 
     public GeneralSchedule(String title, String description, String startDate, String endDate, String startTime, String endTime, String prioeity, boolean isCompleted, String category, String place, String memo) {
         super(title, description, startDate, endDate, startTime, endTime, prioeity, isCompleted);
+        this.category = category;
+        this.place = place;
+        this.memo = memo;
+    }
+
+    public GeneralSchedule(int id, String title, String description, String startDate, String endDate, String startTime, String endTime, String prioeity, boolean isCompleted, String category, String place, String memo) {
+        super(id, title, description, startDate, endDate, startTime, endTime, prioeity, isCompleted);
         this.category = category;
         this.place = place;
         this.memo = memo;

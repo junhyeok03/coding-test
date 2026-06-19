@@ -11,23 +11,18 @@ public class ScheduleItem {
     private LocalTime endTime;
     private String priority;
     private LocalDate createdAt;
-    private LocalTime updateAt;
+    private LocalTime updatedAt;
     private boolean isCompleted;
 
 
     private static int nextId = 1;
-
-    // POJO, equals, Object
-
-//    public ScheduleItem() {
-//
-//    }
-
-    // 착한 경고 -> 오타 수정
-    // 문서 꼼꼼히 보기
     public ScheduleItem(String title, String description, String startDate, String endDate, String startTime, String endTime, String priority, boolean isCompleted) {
-        this.id = nextId++;
-        if (title == null) {
+        this(nextId++, title, description, startDate, endDate, startTime, endTime, priority, isCompleted);
+    }
+
+    protected ScheduleItem(int id, String title, String description, String startDate, String endDate, String startTime, String endTime, String priority, boolean isCompleted) {
+        this.id = id;
+        if (title == null || title.trim().isEmpty()) {
             throw new RuntimeException("비어있을 수 없습니다");
         }
         this.title = title;
@@ -45,30 +40,35 @@ public class ScheduleItem {
         try {
             this.startTime = LocalTime.parse(startTime);
         } catch (RuntimeException e) {
-            throw new RuntimeException("시작일은 HH:MM 형식이어야 합니다");
+            throw new RuntimeException("시작 시간은 HH:mm 형식이어야 합니다");
         }
         try {
             this.endTime = LocalTime.parse(endTime);
         } catch (RuntimeException e) {
-            throw new RuntimeException("시작일은 HH:MM 형식이어야 합니다");
+            throw new RuntimeException("종료 시간은 HH:mm 형식이어야 합니다");
         }
 
         if (this.endDate.isBefore(this.startDate)) {
             throw new RuntimeException("종료일은 시작일보다 빠를 수 없습니다.");
         }
 
+        if (this.endDate.equals(this.startDate) && this.endTime.isBefore(this.startTime)) {
+            throw new RuntimeException("같은 날짜에서는 종료 시간이 시작 시간보다 빠를 수 없습니다.");
+        }
+
         if (priority.equals("LOW") || priority.equals("MEDIUM") || priority.equals("HIGH")) {
             this.priority = priority;
         } else {
-            throw new RuntimeException("하나만 실행 가능 합니다");
+            throw new RuntimeException("우선순위는 HIGH, MEDIUM, LOW 중 하나여야 합니다.");
         }
 
         this.createdAt = LocalDate.now();
-        this.updateAt = LocalTime.now();
+        this.updatedAt = LocalTime.now();
         this.isCompleted = isCompleted;
     }
 
     public void displayInfo() {
+        System.out.println("id : " + id);
         System.out.println("제목 : " + title);
         System.out.println("내용 : " + description);
         System.out.println("시작일 :  " + startDate);
@@ -77,7 +77,7 @@ public class ScheduleItem {
         System.out.println("종료시간 : " + endTime);
         System.out.println("일정 중요도 : " + priority);
         System.out.println("일정 생성 시각 : " + createdAt);
-        System.out.println("일정 수정 시각 : " + updateAt);
+        System.out.println("일정 수정 시각 : " + updatedAt);
         System.out.println("일정 완료 여부 : " + isCompleted);
     }
 
@@ -130,7 +130,11 @@ public class ScheduleItem {
     }
 
     public LocalTime getUpdateAt() {
-        return updateAt;
+        return updatedAt;
+    }
+
+    public LocalTime getUpdatedAt() {
+        return updatedAt;
     }
 
     public boolean isCompleted() {

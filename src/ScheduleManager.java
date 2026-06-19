@@ -1,4 +1,6 @@
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Scanner;
@@ -12,52 +14,107 @@ public class ScheduleManager {
         this.sc = sc;
     }
 
+    public void addSchedule() {
+        int scheduleType = selectScheduleType();
+        if (scheduleType == 0) {
+            return;
+        }
+        addSchedule(scheduleType);
+    }
+
+
+    // 일정 종류
+    private int selectScheduleType() {
+        System.out.println("일정 종류를 선택하세요.");
+        System.out.println("1. 일반 일정");
+        System.out.println("2. 회의 일정");
+        System.out.println("3. 할일 일정");
+        System.out.println("4. 알림 일정");
+        System.out.print("선택 : ");
+
+        int scheduleType = readInt();
+        if (scheduleType == -1) {
+            System.out.println("숫자를 입력하세요.");
+            return 0;
+        }
+
+        if (scheduleType < 1 || scheduleType > 4) {
+            System.out.println("잘못된 일정 종류입니다.");
+            return 0;
+        }
+
+        return scheduleType;
+    }
+
+    // 실제 등록을 처리하는 메서드
     public void addSchedule(int scheduleType) {
         if (count >= scheduleItemList.length) {
             System.out.println("더 이상 일정을 등록할 수 없습니다.");
             return;
         }
 
-        System.out.print("제목 : ");
-        String title = sc.nextLine();
+        ScheduleItem scheduleItem = createSchedule(scheduleType);
+        if (scheduleItem == null) {
+            return;
+        }
 
-        System.out.print("설명 : ");
-        String description = sc.nextLine();
+        if (hasConflict(scheduleItem, -1)) {
+            System.out.println("기존 일정과 시간이 겹쳐 등록할 수 없습니다.");
+            return;
+        }
 
-        System.out.print("일정 시작일 (YYYY-MM-DD) : ");
-        String startDate = sc.nextLine();
+        scheduleItemList[count++] = scheduleItem;
+        System.out.println("일정이 등록되었습니다.");
+    }
 
-        System.out.print("일정 종료일 (YYYY-MM-DD) : ");
-        String endDate = sc.nextLine();
+    // 사용자에게 공통 정보를 입력받는 메서드
+    private ScheduleItem createSchedule(int scheduleType) {
+        return createSchedule(scheduleType, 0, false);
+    }
 
-        System.out.print("일정 시작 시간 (HH:mm) : ");
-        String startTime = sc.nextLine();
+    private ScheduleItem createSchedule(int scheduleType, int id, boolean isCompleted) {
+        try {
+            System.out.print("제목 : ");
+            String title = sc.nextLine();
 
-        System.out.print("일정 종료 시간 (HH:mm) : ");
-        String endTime = sc.nextLine();
+            System.out.print("설명 : ");
+            String description = sc.nextLine();
 
-        System.out.print("일정 중요도(HIGH|MEDIUM|LOW) : ");
-        String priority = sc.nextLine();
+            System.out.print("일정 시작일 (YYYY-MM-DD) : ");
+            String startDate = sc.nextLine();
 
-        switch (scheduleType) {
-            case 1:
-                addGeneralSchedule(sc, title, description, startDate, endDate, startTime, endTime, priority);
-                break;
-            case 2:
-                addMeetingSchedule(sc, title, description, startDate, endDate, startTime, endTime, priority);
-                break;
-            case 3:
-                addTaskSchedule(sc, title, description, startDate, endDate, startTime, endTime, priority);
-                break;
-            case 4:
-                addReminderSchedule(sc, title, description, startDate, endDate, startTime, endTime, priority);
-                break;
-            default:
-                System.out.println("잘못된 일정 종류입니다.");
+            System.out.print("일정 종료일 (YYYY-MM-DD) : ");
+            String endDate = sc.nextLine();
+
+            System.out.print("일정 시작 시간 (HH:mm) : ");
+            String startTime = sc.nextLine();
+
+            System.out.print("일정 종료 시간 (HH:mm) : ");
+            String endTime = sc.nextLine();
+
+            System.out.print("일정 중요도(HIGH|MEDIUM|LOW) : ");
+            String priority = sc.nextLine();
+
+            switch (scheduleType) {
+                case 1:
+                    return createGeneralSchedule(id, title, description, startDate, endDate, startTime, endTime, priority, isCompleted);
+                case 2:
+                    return createMeetingSchedule(id, title, description, startDate, endDate, startTime, endTime, priority, isCompleted);
+                case 3:
+                    return createTaskSchedule(id, title, description, startDate, endDate, startTime, endTime, priority, isCompleted);
+                case 4:
+                    return createReminderSchedule(id, title, description, startDate, endDate, startTime, endTime, priority, isCompleted);
+                default:
+                    System.out.println("잘못된 일정 종류입니다.");
+                    return null;
+            }
+        } catch (RuntimeException e) {
+            System.out.println("입력 오류 : " + e.getMessage());
+            return null;
         }
     }
 
-    private void addGeneralSchedule(Scanner sc, String title, String description, String startDate, String endDate, String startTime, String endTime, String priority) {
+    private ScheduleItem createGeneralSchedule(int id, String title, String description, String startDate, String endDate, String startTime, String endTime, String priority, boolean isCompleted) {
         System.out.print("카테고리 : ");
         String category = sc.nextLine();
 
@@ -67,11 +124,13 @@ public class ScheduleManager {
         System.out.print("메모 : ");
         String memo = sc.nextLine();
 
-        scheduleItemList[count++] = new GeneralSchedule(title, description, startDate, endDate, startTime, endTime, priority, false, category, place, memo);
-        System.out.println("일정이 등록되었습니다.");
+        if (id == 0) {
+            return new GeneralSchedule(title, description, startDate, endDate, startTime, endTime, priority, isCompleted, category, place, memo);
+        }
+        return new GeneralSchedule(id, title, description, startDate, endDate, startTime, endTime, priority, isCompleted, category, place, memo);
     }
 
-    private void addMeetingSchedule(Scanner sc, String title, String description, String startDate, String endDate, String startTime, String endTime, String priority) {
+    private ScheduleItem createMeetingSchedule(int id, String title, String description, String startDate, String endDate, String startTime, String endTime, String priority, boolean isCompleted) {
         System.out.print("위치 : ");
         String location = sc.nextLine();
 
@@ -84,11 +143,13 @@ public class ScheduleManager {
         System.out.print("호스트 : ");
         String host = sc.nextLine();
 
-        scheduleItemList[count++] = new MeetingSchedule(title, description, startDate, endDate, startTime, endTime, priority, false, location, participants, agenda, host);
-        System.out.println("일정이 등록되었습니다.");
+        if (id == 0) {
+            return new MeetingSchedule(title, description, startDate, endDate, startTime, endTime, priority, isCompleted, location, participants, agenda, host);
+        }
+        return new MeetingSchedule(id, title, description, startDate, endDate, startTime, endTime, priority, isCompleted, location, participants, agenda, host);
     }
 
-    private void addTaskSchedule(Scanner sc, String title, String description, String startDate, String endDate, String startTime, String endTime, String priority) {
+    private ScheduleItem createTaskSchedule(int id, String title, String description, String startDate, String endDate, String startTime, String endTime, String priority, boolean isCompleted) {
         System.out.print("마감일 (YYYY-MM-DD) : ");
         String deadline = sc.nextLine();
 
@@ -101,12 +162,14 @@ public class ScheduleManager {
         System.out.print("담당자 : ");
         String assignedTo = sc.nextLine();
 
-        scheduleItemList[count++] = new TaskSchedule(title, description, startDate, endDate, startTime, endTime, priority, false, deadline, progress, taskStatus, assignedTo);
-        System.out.println("일정이 등록되었습니다.");
+        if (id == 0) {
+            return new TaskSchedule(title, description, startDate, endDate, startTime, endTime, priority, isCompleted, deadline, progress, taskStatus, assignedTo);
+        }
+        return new TaskSchedule(id, title, description, startDate, endDate, startTime, endTime, priority, isCompleted, deadline, progress, taskStatus, assignedTo);
     }
 
-    private void addReminderSchedule(Scanner sc, String title, String description, String startDate, String endDate, String startTime, String endTime, String priority) {
-        System.out.print("알림 시간 (HH:MM) : ");
+    private ScheduleItem createReminderSchedule(int id, String title, String description, String startDate, String endDate, String startTime, String endTime, String priority, boolean isCompleted) {
+        System.out.print("알림 시간 (HH:mm) : ");
         String reminderTime = sc.nextLine();
 
         System.out.print("알림 메시지 : ");
@@ -115,29 +178,27 @@ public class ScheduleManager {
         System.out.print("알림 타입(POPUP|SOUND|MESSAGE) : ");
         String notificationType = sc.nextLine();
 
-        scheduleItemList[count++] = new ReminderSchedule(title, description, startDate, endDate, startTime, endTime, priority, false, reminderTime, reminderMessage, notificationType, false);
-        System.out.println("일정이 등록되었습니다.");
-    }
-
-    public void displayAllSchedules(int scheduleType) {
-        for (int i = 0; i < count; i++) {
-            if (isSameScheduleType(scheduleItemList[i], scheduleType)) {
-                scheduleItemList[i].displayInfo();
-                System.out.println();
-            }
+        if (id == 0) {
+            return new ReminderSchedule(title, description, startDate, endDate, startTime, endTime, priority, isCompleted, reminderTime, reminderMessage, notificationType, false);
         }
+        return new ReminderSchedule(id, title, description, startDate, endDate, startTime, endTime, priority, isCompleted, reminderTime, reminderMessage, notificationType, false);
     }
 
     public void displayAllSchedules() {
+        if (count == 0) {
+            System.out.println("등록된 일정이 없습니다.");
+            return;
+        }
+
         for (int i = 0; i < count; i++) {
             scheduleItemList[i].displayInfo();
             System.out.println();
         }
     }
 
-    public void displayScheduleById(int scheduleType, int id) {
+    public void displayScheduleById(int id) {
         for (int i = 0; i < count; i++) {
-            if (scheduleItemList[i].getId() == id && isSameScheduleType(scheduleItemList[i], scheduleType)) {
+            if (scheduleItemList[i].getId() == id) {
                 scheduleItemList[i].displayInfo();
                 return;
             }
@@ -145,29 +206,59 @@ public class ScheduleManager {
         System.out.println("해당 id가 존재하지 않습니다.");
     }
 
-    public void updateSchedule(int scheduleType) {
+    public void displayScheduleById() {
+        System.out.print("조회할 id : ");
+        int id = readInt();
+        if (id == -1) {
+            System.out.println("id는 숫자로 입력해야 합니다.");
+            return;
+        }
+
+        displayScheduleById(id);
+    }
+
+    public void updateSchedule() {
         System.out.print("수정할 Id : ");
-        int id = sc.nextInt();
-        sc.nextLine();
+        int id = readInt();
+        if (id == -1) {
+            System.out.println("id는 숫자로 입력해야 합니다.");
+            return;
+        }
 
         for (int i = 0; i < count; i++) {
-            if (scheduleItemList[i].getId() == id && isSameScheduleType(scheduleItemList[i], scheduleType)) {
-                removeSchedule(i);
+            if (scheduleItemList[i].getId() == id) {
+                int scheduleType = getScheduleTypeNumber(scheduleItemList[i]);
                 System.out.println("새 정보를 입력하세요.");
-                addSchedule(scheduleType);
+                ScheduleItem newScheduleItem = createSchedule(scheduleType, scheduleItemList[i].getId(), scheduleItemList[i].isCompleted());
+
+                if (newScheduleItem == null) {
+                    System.out.println("수정이 취소되었습니다.");
+                    return;
+                }
+
+                if (hasConflict(newScheduleItem, i)) {
+                    System.out.println("기존 일정과 시간이 겹쳐 수정할 수 없습니다.");
+                    return;
+                }
+
+                scheduleItemList[i] = newScheduleItem;
+                System.out.println("수정되었습니다.");
                 return;
             }
         }
         System.out.println("해당 id가 존재하지 않습니다.");
     }
 
-    public void deleteSchedule(int scheduleType) {
+    public void deleteSchedule() {
         System.out.print("삭제할 Id : ");
-        int id = sc.nextInt();
-        sc.nextLine();
+        int id = readInt();
+        if (id == -1) {
+            System.out.println("id는 숫자로 입력해야 합니다.");
+            return;
+        }
 
         for (int i = 0; i < count; i++) {
-            if (scheduleItemList[i].getId() == id && isSameScheduleType(scheduleItemList[i], scheduleType)) {
+            if (scheduleItemList[i].getId() == id) {
                 removeSchedule(i);
                 System.out.println("삭제되었습니다.");
                 return;
@@ -176,77 +267,251 @@ public class ScheduleManager {
         System.out.println("해당 id가 존재하지 않습니다.");
     }
 
-    public void completeSchedule(int scheduleType) {
+    public void completeSchedule() {
         System.out.print("완료할 Id : ");
-        int id = sc.nextInt();
-        sc.nextLine();
+        int id = readInt();
+        if (id == -1) {
+            System.out.println("id는 숫자로 입력해야 합니다.");
+            return;
+        }
 
         for (int i = 0; i < count; i++) {
-            if (scheduleItemList[i].getId() == id && isSameScheduleType(scheduleItemList[i], scheduleType)) {
+            if (scheduleItemList[i].getId() == id) {
                 scheduleItemList[i].markAsCompleted();
                 System.out.println("완료 처리 되었습니다.");
+                scheduleItemList[i].displayInfo();
                 return;
             }
         }
         System.out.println("해당 id가 존재하지 않습니다.");
     }
 
-    public void searchByTitle(int scheduleType) {
+    public void searchByTitle() {
         System.out.print("제목 입력 : ");
         String title = sc.nextLine();
+        if (title.trim().isEmpty()) {
+            System.out.println("검색어를 입력하세요.");
+            return;
+        }
+
+        boolean found = false;
 
         for (int i = 0; i < count; i++) {
-            if (isSameScheduleType(scheduleItemList[i], scheduleType) && scheduleItemList[i].getTitle().contains(title)) {
+            if (scheduleItemList[i].getTitle().contains(title)) {
                 scheduleItemList[i].displayInfo();
                 System.out.println();
+                found = true;
             }
+        }
+
+        if (!found) {
+            System.out.println("검색 결과가 없습니다.");
         }
     }
 
-    public void searchByDate(int scheduleType) {
-        System.out.print("검색할 날짜(YYYY-MM-DD) : ");
-        LocalDate date = LocalDate.parse(sc.nextLine());
+    public void searchByDate() {
+        LocalDate date = readDate("검색할 날짜(YYYY-MM-DD) : ");
+        if (date == null) {
+            return;
+        }
 
+        boolean found = false;
         for (int i = 0; i < count; i++) {
-            if (isSameScheduleType(scheduleItemList[i], scheduleType) && scheduleItemList[i].getStartDate().equals(date)) {
+            if (scheduleItemList[i].getStartDate().equals(date)) {
                 scheduleItemList[i].displayInfo();
                 System.out.println();
+                found = true;
             }
+        }
+
+        if (!found) {
+            System.out.println("검색 결과가 없습니다.");
         }
     }
 
-    public void searchByPriority(int scheduleType) {
+    public void searchByPriority() {
         System.out.print("우선순위 입력(HIGH|MEDIUM|LOW) : ");
         String priority = sc.nextLine();
+        if (!isValidPriority(priority)) {
+            System.out.println("우선순위는 HIGH, MEDIUM, LOW 중 하나여야 합니다.");
+            return;
+        }
+
+        boolean found = false;
 
         for (int i = 0; i < count; i++) {
-            if (isSameScheduleType(scheduleItemList[i], scheduleType) && scheduleItemList[i].getPriority().equals(priority)) {
+            if (scheduleItemList[i].getPriority().equals(priority)) {
                 scheduleItemList[i].displayInfo();
                 System.out.println();
+                found = true;
             }
+        }
+
+        if (!found) {
+            System.out.println("검색 결과가 없습니다.");
         }
     }
 
-    public void sortByDate(int scheduleType) {
+    public void sortByDate() {
+        if (count == 0) {
+            System.out.println("등록된 일정이 없습니다.");
+            return;
+        }
+
         Arrays.sort(scheduleItemList, 0, count,
                 Comparator.comparing(ScheduleItem::getStartDate)
                         .thenComparing(ScheduleItem::getStartTime));
 
-        displayAllSchedules(scheduleType);
+        displayAllSchedules();
     }
 
-    public void sortByPriority(int scheduleType) {
+    public void sortByPriority() {
+        if (count == 0) {
+            System.out.println("등록된 일정이 없습니다.");
+            return;
+        }
+
         Arrays.sort(scheduleItemList, 0, count,
                 Comparator.comparing(item -> getPriorityOrder(item.getPriority())));
 
-        displayAllSchedules(scheduleType);
+        displayAllSchedules();
     }
 
-    public void sortByCompletion(int scheduleType) {
+    public void sortByCompletion() {
+        if (count == 0) {
+            System.out.println("등록된 일정이 없습니다.");
+            return;
+        }
+
         Arrays.sort(scheduleItemList, 0, count,
                 Comparator.comparing(ScheduleItem::isCompleted));
 
-        displayAllSchedules(scheduleType);
+        displayAllSchedules();
+    }
+
+
+    // 일정 충돌 확인
+    public void checkConflict() {
+        try {
+            LocalDate startDate = readDate("시작일 (YYYY-MM-DD) : ");
+            if (startDate == null) {
+                return;
+            }
+
+            LocalDate endDate = readDate("종료일 (YYYY-MM-DD) : ");
+            if (endDate == null) {
+                return;
+            }
+
+            LocalTime startTime = readTime("시작 시간 (HH:mm) : ");
+            if (startTime == null) {
+                return;
+            }
+
+            LocalTime endTime = readTime("종료 시간 (HH:mm) : ");
+            if (endTime == null) {
+                return;
+            }
+
+            if (endDate.isBefore(startDate) || (endDate.equals(startDate) && endTime.isBefore(startTime))) {
+                System.out.println("종료 일시는 시작 일시보다 빠를 수 없습니다.");
+                return;
+            }
+
+            boolean found = false;
+            for (int i = 0; i < count; i++) {
+                if (isOverlapped(startDate, endDate, startTime, endTime, scheduleItemList[i])) {
+                    printConflictSchedule(scheduleItemList[i]);
+                    found = true;
+                }
+            }
+
+            if (!found) {
+                System.out.println("충돌하는 일정이 없습니다.");
+            }
+        } catch (RuntimeException e) {
+            System.out.println("입력 오류 : " + e.getMessage());
+        }
+    }
+
+    public void runNotification() {
+        System.out.print("알림 실행할 Id : ");
+        int id = readInt();
+        if (id == -1) {
+            System.out.println("id는 숫자로 입력해야 합니다.");
+            return;
+        }
+
+        for (int i = 0; i < count; i++) {
+            if (scheduleItemList[i].getId() == id) {
+                scheduleItemList[i].notifyUser();
+                scheduleItemList[i].displayInfo();
+                return;
+            }
+        }
+        System.out.println("해당 id가 존재하지 않습니다.");
+    }
+
+    private int readInt() {
+        try {
+            return Integer.parseInt(sc.nextLine());
+        } catch (NumberFormatException e) {
+            return -1;
+        }
+    }
+
+    private LocalDate readDate(String message) {
+        try {
+            System.out.print(message);
+            return LocalDate.parse(sc.nextLine());
+        } catch (RuntimeException e) {
+            System.out.println("날짜는 YYYY-MM-DD 형식이어야 합니다.");
+            return null;
+        }
+    }
+
+    private LocalTime readTime(String message) {
+        try {
+            System.out.print(message);
+            return LocalTime.parse(sc.nextLine());
+        } catch (RuntimeException e) {
+            System.out.println("시간은 HH:mm 형식이어야 합니다.");
+            return null;
+        }
+    }
+
+    private boolean hasConflict(ScheduleItem target, int excludeIndex) {
+        boolean conflicted = false;
+        for (int i = 0; i < count; i++) {
+            if (i != excludeIndex && isOverlapped(target, scheduleItemList[i])) {
+                printConflictSchedule(scheduleItemList[i]);
+                conflicted = true;
+            }
+        }
+        return conflicted;
+    }
+
+    private boolean isOverlapped(ScheduleItem a, ScheduleItem b) {
+        return isOverlapped(a.getStartDate(), a.getEndDate(), a.getStartTime(), a.getEndTime(), b);
+    }
+
+    private boolean isOverlapped(LocalDate startDate, LocalDate endDate, LocalTime startTime, LocalTime endTime, ScheduleItem scheduleItem) {
+        LocalDateTime targetStart = LocalDateTime.of(startDate, startTime);
+        LocalDateTime targetEnd = LocalDateTime.of(endDate, endTime);
+        LocalDateTime itemStart = LocalDateTime.of(scheduleItem.getStartDate(), scheduleItem.getStartTime());
+        LocalDateTime itemEnd = LocalDateTime.of(scheduleItem.getEndDate(), scheduleItem.getEndTime());
+
+        return targetStart.isBefore(itemEnd) && itemStart.isBefore(targetEnd);
+    }
+
+    private void printConflictSchedule(ScheduleItem scheduleItem) {
+        System.out.println("충돌 일정 id : " + scheduleItem.getId());
+        System.out.println("충돌 일정 제목 : " + scheduleItem.getTitle());
+        System.out.println("충돌 일정 시작일 : " + scheduleItem.getStartDate());
+        System.out.println("충돌 일정 시작시간 : " + scheduleItem.getStartTime());
+        System.out.println("충돌 일정 종료일 : " + scheduleItem.getEndDate());
+        System.out.println("충돌 일정 종료시간 : " + scheduleItem.getEndTime());
+        System.out.println();
     }
 
     private int getPriorityOrder(String priority) {
@@ -260,19 +525,21 @@ public class ScheduleManager {
         return 4;
     }
 
-    private boolean isSameScheduleType(ScheduleItem scheduleItem, int scheduleType) {
-        switch (scheduleType) {
-            case 1:
-                return scheduleItem instanceof GeneralSchedule;
-            case 2:
-                return scheduleItem instanceof MeetingSchedule;
-            case 3:
-                return scheduleItem instanceof TaskSchedule;
-            case 4:
-                return scheduleItem instanceof ReminderSchedule;
-            default:
-                return false;
+    private boolean isValidPriority(String priority) {
+        return priority.equals("HIGH") || priority.equals("MEDIUM") || priority.equals("LOW");
+    }
+
+    private int getScheduleTypeNumber(ScheduleItem scheduleItem) {
+        if (scheduleItem instanceof GeneralSchedule) {
+            return 1;
+        } else if (scheduleItem instanceof MeetingSchedule) {
+            return 2;
+        } else if (scheduleItem instanceof TaskSchedule) {
+            return 3;
+        } else if (scheduleItem instanceof ReminderSchedule) {
+            return 4;
         }
+        return 0;
     }
 
     private void removeSchedule(int index) {
