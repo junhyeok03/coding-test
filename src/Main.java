@@ -21,7 +21,8 @@ public class Main {
             System.out.println("12. 완료 여부순 정렬");
             System.out.println("13. 일정 충돌 확인");
             System.out.println("14. 알림 실행");
-            System.out.println("15. 프로그램 종료");
+            System.out.println("15. 파일 저장");
+            System.out.println("16. 프로그램 종료");
             System.out.print("선택 : ");
 
             int choice = readInt(sc);
@@ -74,6 +75,9 @@ public class Main {
                     scheduleManager.runNotification();
                     break;
                 case 15:
+                    scheduleManager.saveToFile();
+                    break;
+                case 16:
                     System.out.println("프로그램을 종료합니다.");
                     return;
                 default:

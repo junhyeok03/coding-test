@@ -27,9 +27,10 @@ public class TaskSchedule extends ScheduleItem {
         if (progress >= 0 && progress <= 100) {
             this.progress = progress;
         } else {
-            throw new RuntimeException("0이상 100 이하의 정수여야 함.");
+            throw new RuntimeException("진행률은 0 이상 100 이하의 정수여야 합니다.");
         }
 
+        taskStatus = taskStatus == null ? "" : taskStatus.trim().toUpperCase();
         if (taskStatus.equals("TODO") || taskStatus.equals("IN_PROGRESS") || taskStatus.equals("DONE")) {
             this.taskStatus = taskStatus;
         } else {
@@ -45,6 +46,15 @@ public class TaskSchedule extends ScheduleItem {
         System.out.println("진행률 : " + progress);
         System.out.println("작업 상태 : " + taskStatus);
         System.out.println("담당자 : " + assignedTo);
+    }
+
+    @Override
+    public String toFileString() {
+        return super.toFileString() + "\n"
+                + "마감일 : " + deadline + "\n"
+                + "진행률 : " + progress + "\n"
+                + "작업 상태 : " + taskStatus + "\n"
+                + "담당자 : " + assignedTo;
     }
 
     @Override

@@ -35,7 +35,7 @@ public class ScheduleItem {
         try {
             this.endDate = LocalDate.parse(endDate);
         } catch (RuntimeException e) {
-            throw new RuntimeException("시작일은 YYYY-MM-DD 형식이어야 합니다.");
+            throw new RuntimeException("종료일은 YYYY-MM-DD 형식이어야 합니다.");
         }
         try {
             this.startTime = LocalTime.parse(startTime);
@@ -55,6 +55,8 @@ public class ScheduleItem {
         if (this.endDate.equals(this.startDate) && this.endTime.isBefore(this.startTime)) {
             throw new RuntimeException("같은 날짜에서는 종료 시간이 시작 시간보다 빠를 수 없습니다.");
         }
+
+        priority = priority == null ? "" : priority.trim().toUpperCase();
 
         if (priority.equals("LOW") || priority.equals("MEDIUM") || priority.equals("HIGH")) {
             this.priority = priority;
@@ -79,6 +81,21 @@ public class ScheduleItem {
         System.out.println("일정 생성 시각 : " + createdAt);
         System.out.println("일정 수정 시각 : " + updatedAt);
         System.out.println("일정 완료 여부 : " + isCompleted);
+    }
+
+    public String toFileString() {
+        return "일정 종류 : " + getScheduleType() + "\n"
+                + "id : " + id + "\n"
+                + "제목 : " + title + "\n"
+                + "내용 : " + description + "\n"
+                + "시작일 : " + startDate + "\n"
+                + "종료일 : " + endDate + "\n"
+                + "시작시간 : " + startTime + "\n"
+                + "종료시간 : " + endTime + "\n"
+                + "일정 중요도 : " + priority + "\n"
+                + "일정 생성 시각 : " + createdAt + "\n"
+                + "일정 수정 시각 : " + updatedAt + "\n"
+                + "일정 완료 여부 : " + isCompleted;
     }
 
     public String getScheduleType() {

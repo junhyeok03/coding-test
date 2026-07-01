@@ -32,6 +32,15 @@ public class MeetingSchedule extends ScheduleItem {
     }
 
     @Override
+    public String toFileString() {
+        return super.toFileString() + "\n"
+                + "위치 : " + location + "\n"
+                + "참가자 : " + participants + "\n"
+                + "의제 : " + agenda + "\n"
+                + "호스트 : " + host;
+    }
+
+    @Override
     public String getScheduleType() {
         return "MeetingSchedule";
     }

@@ -28,6 +28,14 @@ public class GeneralSchedule extends ScheduleItem {
     }
 
     @Override
+    public String toFileString() {
+        return super.toFileString() + "\n"
+                + "카테고리 : " + category + "\n"
+                + "장소 : " + place + "\n"
+                + "메모 : " + memo;
+    }
+
+    @Override
     public String getScheduleType() {
         return "GeneralSchedule";
     }
