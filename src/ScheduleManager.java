@@ -12,6 +12,7 @@ import java.util.Scanner;
 public class ScheduleManager {
     List<ScheduleItem> scheduleItemList = new ArrayList<>();
     private final Scanner sc;
+    private User selectedUser;
 
     public ScheduleManager(Scanner sc) {
         this.sc = sc;
@@ -51,6 +52,11 @@ public class ScheduleManager {
 
     // 실제 등록을 처리하는 메서드
     public void addSchedule(int scheduleType) {
+        if (selectedUser == null) {
+            System.out.println("먼저 사용자를 선택하세요.");
+            return;
+        }
+
         ScheduleItem scheduleItem = createSchedule(scheduleType);
         if (scheduleItem == null) {
             return;
@@ -67,10 +73,10 @@ public class ScheduleManager {
 
     // 사용자에게 공통 정보를 입력받는 메서드
     private ScheduleItem createSchedule(int scheduleType) {
-        return createSchedule(scheduleType, 0, false);
+        return createSchedule(scheduleType, 0, selectedUser.getId(), false);
     }
 
-    private ScheduleItem createSchedule(int scheduleType, int id, boolean isCompleted) {
+    private ScheduleItem createSchedule(int scheduleType, int id, int userId, boolean isCompleted) {
         try {
             System.out.print("제목 : ");
             String title = sc.nextLine();
@@ -95,13 +101,13 @@ public class ScheduleManager {
 
             switch (scheduleType) {
                 case 1:
-                    return createGeneralSchedule(id, title, description, startDate, endDate, startTime, endTime, priority, isCompleted);
+                    return createGeneralSchedule(id, userId, title, description, startDate, endDate, startTime, endTime, priority, isCompleted);
                 case 2:
-                    return createMeetingSchedule(id, title, description, startDate, endDate, startTime, endTime, priority, isCompleted);
+                    return createMeetingSchedule(id, userId, title, description, startDate, endDate, startTime, endTime, priority, isCompleted);
                 case 3:
-                    return createTaskSchedule(id, title, description, startDate, endDate, startTime, endTime, priority, isCompleted);
+                    return createTaskSchedule(id, userId, title, description, startDate, endDate, startTime, endTime, priority, isCompleted);
                 case 4:
-                    return createReminderSchedule(id, title, description, startDate, endDate, startTime, endTime, priority, isCompleted);
+                    return createReminderSchedule(id, userId, title, description, startDate, endDate, startTime, endTime, priority, isCompleted);
                 default:
                     System.out.println("잘못된 일정 종류입니다.");
                     return null;
@@ -112,7 +118,7 @@ public class ScheduleManager {
         }
     }
 
-    private ScheduleItem createGeneralSchedule(int id, String title, String description, String startDate, String endDate, String startTime, String endTime, String priority, boolean isCompleted) {
+    private ScheduleItem createGeneralSchedule(int id, int userId, String title, String description, String startDate, String endDate, String startTime, String endTime, String priority, boolean isCompleted) {
         System.out.print("카테고리 : ");
         String category = sc.nextLine();
 
@@ -123,12 +129,12 @@ public class ScheduleManager {
         String memo = sc.nextLine();
 
         if (id == 0) {
-            return new GeneralSchedule(title, description, startDate, endDate, startTime, endTime, priority, isCompleted, category, place, memo);
+            return new GeneralSchedule(userId, title, description, startDate, endDate, startTime, endTime, priority, isCompleted, category, place, memo);
         }
-        return new GeneralSchedule(id, title, description, startDate, endDate, startTime, endTime, priority, isCompleted, category, place, memo);
+        return new GeneralSchedule(id, userId, title, description, startDate, endDate, startTime, endTime, priority, isCompleted, category, place, memo);
     }
 
-    private ScheduleItem createMeetingSchedule(int id, String title, String description, String startDate, String endDate, String startTime, String endTime, String priority, boolean isCompleted) {
+    private ScheduleItem createMeetingSchedule(int id, int userId, String title, String description, String startDate, String endDate, String startTime, String endTime, String priority, boolean isCompleted) {
         System.out.print("위치 : ");
         String location = sc.nextLine();
 
@@ -142,12 +148,12 @@ public class ScheduleManager {
         String host = sc.nextLine();
 
         if (id == 0) {
-            return new MeetingSchedule(title, description, startDate, endDate, startTime, endTime, priority, isCompleted, location, participants, agenda, host);
+            return new MeetingSchedule(userId, title, description, startDate, endDate, startTime, endTime, priority, isCompleted, location, participants, agenda, host);
         }
-        return new MeetingSchedule(id, title, description, startDate, endDate, startTime, endTime, priority, isCompleted, location, participants, agenda, host);
+        return new MeetingSchedule(id, userId, title, description, startDate, endDate, startTime, endTime, priority, isCompleted, location, participants, agenda, host);
     }
 
-    private ScheduleItem createTaskSchedule(int id, String title, String description, String startDate, String endDate, String startTime, String endTime, String priority, boolean isCompleted) {
+    private ScheduleItem createTaskSchedule(int id, int userId, String title, String description, String startDate, String endDate, String startTime, String endTime, String priority, boolean isCompleted) {
         System.out.print("마감일 (YYYY-MM-DD) : ");
         String deadline = sc.nextLine();
 
@@ -166,12 +172,12 @@ public class ScheduleManager {
         String assignedTo = sc.nextLine();
 
         if (id == 0) {
-            return new TaskSchedule(title, description, startDate, endDate, startTime, endTime, priority, isCompleted, deadline, progress, taskStatus, assignedTo);
+            return new TaskSchedule(userId, title, description, startDate, endDate, startTime, endTime, priority, isCompleted, deadline, progress, taskStatus, assignedTo);
         }
-        return new TaskSchedule(id, title, description, startDate, endDate, startTime, endTime, priority, isCompleted, deadline, progress, taskStatus, assignedTo);
+        return new TaskSchedule(id, userId, title, description, startDate, endDate, startTime, endTime, priority, isCompleted, deadline, progress, taskStatus, assignedTo);
     }
 
-    private ScheduleItem createReminderSchedule(int id, String title, String description, String startDate, String endDate, String startTime, String endTime, String priority, boolean isCompleted) {
+    private ScheduleItem createReminderSchedule(int id, int userId, String title, String description, String startDate, String endDate, String startTime, String endTime, String priority, boolean isCompleted) {
         System.out.print("알림 시간 (HH:mm) : ");
         String reminderTime = sc.nextLine();
 
@@ -182,9 +188,9 @@ public class ScheduleManager {
         String notificationType = sc.nextLine();
 
         if (id == 0) {
-            return new ReminderSchedule(title, description, startDate, endDate, startTime, endTime, priority, isCompleted, reminderTime, reminderMessage, notificationType, false);
+            return new ReminderSchedule(userId, title, description, startDate, endDate, startTime, endTime, priority, isCompleted, reminderTime, reminderMessage, notificationType, false);
         }
-        return new ReminderSchedule(id, title, description, startDate, endDate, startTime, endTime, priority, isCompleted, reminderTime, reminderMessage, notificationType, false);
+        return new ReminderSchedule(id, userId, title, description, startDate, endDate, startTime, endTime, priority, isCompleted, reminderTime, reminderMessage, notificationType, false);
     }
 
     public void displayAllSchedules() {
@@ -233,7 +239,7 @@ public class ScheduleManager {
             if (currentSchedule.getId() == id) {
                 int scheduleType = getScheduleTypeNumber(currentSchedule);
                 System.out.println("새 정보를 입력하세요.");
-                ScheduleItem newScheduleItem = createSchedule(scheduleType, currentSchedule.getId(), currentSchedule.isCompleted());
+                ScheduleItem newScheduleItem = createSchedule(scheduleType, currentSchedule.getId(), currentSchedule.getUserId(), currentSchedule.isCompleted());
 
                 if (newScheduleItem == null) {
                     System.out.println("수정이 취소되었습니다.");

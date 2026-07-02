@@ -5,15 +5,15 @@ public class GeneralSchedule extends ScheduleItem {
     private String memo;
 
 
-    public GeneralSchedule(String title, String description, String startDate, String endDate, String startTime, String endTime, String prioeity, boolean isCompleted, String category, String place, String memo) {
-        super(title, description, startDate, endDate, startTime, endTime, prioeity, isCompleted);
+    public GeneralSchedule(int userId, String title, String description, String startDate, String endDate, String startTime, String endTime, String prioeity, boolean isCompleted, String category, String place, String memo) {
+        super(userId, title, description, startDate, endDate, startTime, endTime, prioeity, isCompleted);
         this.category = category;
         this.place = place;
         this.memo = memo;
     }
 
-    public GeneralSchedule(int id, String title, String description, String startDate, String endDate, String startTime, String endTime, String prioeity, boolean isCompleted, String category, String place, String memo) {
-        super(id, title, description, startDate, endDate, startTime, endTime, prioeity, isCompleted);
+    public GeneralSchedule(int id, int userId, String title, String description, String startDate, String endDate, String startTime, String endTime, String prioeity, boolean isCompleted, String category, String place, String memo) {
+        super(id, userId, title, description, startDate, endDate, startTime, endTime, prioeity, isCompleted);
         this.category = category;
         this.place = place;
         this.memo = memo;

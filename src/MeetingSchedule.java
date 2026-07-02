@@ -6,16 +6,16 @@ public class MeetingSchedule extends ScheduleItem {
     private String host;
 
 
-    public MeetingSchedule(String title, String description, String startDate, String endDate, String startTime, String endTime, String prioeity, boolean isCompleted, String location, String participants, String agenda, String host) {
-        super(title, description, startDate, endDate, startTime, endTime, prioeity, isCompleted);
+    public MeetingSchedule(int userId, String title, String description, String startDate, String endDate, String startTime, String endTime, String prioeity, boolean isCompleted, String location, String participants, String agenda, String host) {
+        super(userId, title, description, startDate, endDate, startTime, endTime, prioeity, isCompleted);
         this.location = location;
         this.participants = participants;
         this.agenda = agenda;
         this.host = host;
     }
 
-    public MeetingSchedule(int id, String title, String description, String startDate, String endDate, String startTime, String endTime, String prioeity, boolean isCompleted, String location, String participants, String agenda, String host) {
-        super(id, title, description, startDate, endDate, startTime, endTime, prioeity, isCompleted);
+    public MeetingSchedule(int id, int userId, String title, String description, String startDate, String endDate, String startTime, String endTime, String prioeity, boolean isCompleted, String location, String participants, String agenda, String host) {
+        super(id, userId, title, description, startDate, endDate, startTime, endTime, prioeity, isCompleted);
         this.location = location;
         this.participants = participants;
         this.agenda = agenda;

@@ -2,6 +2,7 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 
 public class ScheduleItem {
+    private final int userId;
     private final int id;
     private String title;
     private String description;
@@ -16,15 +17,22 @@ public class ScheduleItem {
 
 
     private static int nextId = 1;
-    public ScheduleItem(String title, String description, String startDate, String endDate, String startTime, String endTime, String priority, boolean isCompleted) {
-        this(nextId++, title, description, startDate, endDate, startTime, endTime, priority, isCompleted);
+    public ScheduleItem(int userId, String title, String description,
+                        String startDate, String endDate,
+                        String startTime, String endTime,
+                        String priority, boolean isCompleted) {
+        this(nextId++, userId, title, description, startDate, endDate, startTime, endTime, priority, isCompleted);
     }
 
-    protected ScheduleItem(int id, String title, String description, String startDate, String endDate, String startTime, String endTime, String priority, boolean isCompleted) {
+    protected ScheduleItem(int id, int userId, String title, String description, String startDate, String endDate, String startTime, String endTime, String priority, boolean isCompleted) {
         this.id = id;
+        if(userId <= 0) {
+            throw new RuntimeException("일정은 반드시 사용자에게 속해야 합니다.");
+        }
         if (title == null || title.trim().isEmpty()) {
             throw new RuntimeException("비어있을 수 없습니다");
         }
+        this.userId = userId;
         this.title = title;
         this.description = description;
         try {
@@ -71,6 +79,7 @@ public class ScheduleItem {
 
     public void displayInfo() {
         System.out.println("id : " + id);
+        System.out.println("사용자 id : " + userId);
         System.out.println("제목 : " + title);
         System.out.println("내용 : " + description);
         System.out.println("시작일 :  " + startDate);
@@ -86,6 +95,7 @@ public class ScheduleItem {
     public String toFileString() {
         return "일정 종류 : " + getScheduleType() + "\n"
                 + "id : " + id + "\n"
+                + "사용자 id : " + userId + "\n"
                 + "제목 : " + title + "\n"
                 + "내용 : " + description + "\n"
                 + "시작일 : " + startDate + "\n"
@@ -112,6 +122,10 @@ public class ScheduleItem {
 
     public int getId() {
         return id;
+    }
+
+    public int getUserId() {
+        return userId;
     }
 
     public String getTitle() {

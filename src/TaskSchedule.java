@@ -8,13 +8,13 @@ public class TaskSchedule extends ScheduleItem {
     private String taskStatus;
     private String assignedTo;
 
-    public TaskSchedule(String title, String description, String startDate, String endDate, String startTime, String endTime, String prioeity, boolean isCompleted, String deadline, int progress, String taskStatus, String assignedTo) {
-        super(title, description, startDate, endDate, startTime, endTime, prioeity, isCompleted);
+    public TaskSchedule(int userId, String title, String description, String startDate, String endDate, String startTime, String endTime, String prioeity, boolean isCompleted, String deadline, int progress, String taskStatus, String assignedTo) {
+        super(userId, title, description, startDate, endDate, startTime, endTime, prioeity, isCompleted);
         init(deadline, progress, taskStatus, assignedTo);
     }
 
-    public TaskSchedule(int id, String title, String description, String startDate, String endDate, String startTime, String endTime, String prioeity, boolean isCompleted, String deadline, int progress, String taskStatus, String assignedTo) {
-        super(id, title, description, startDate, endDate, startTime, endTime, prioeity, isCompleted);
+    public TaskSchedule(int id, int userId, String title, String description, String startDate, String endDate, String startTime, String endTime, String prioeity, boolean isCompleted, String deadline, int progress, String taskStatus, String assignedTo) {
+        super(id, userId, title, description, startDate, endDate, startTime, endTime, prioeity, isCompleted);
         init(deadline, progress, taskStatus, assignedTo);
     }
 

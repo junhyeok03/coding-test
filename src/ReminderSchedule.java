@@ -7,13 +7,13 @@ public class ReminderSchedule extends ScheduleItem {
     private boolean isReminderSent;
 
 
-    public ReminderSchedule(String title, String description, String startDate, String endDate, String startTime, String endTime, String prioeity, boolean isCompleted, String reminderTime, String reminderMessage, String notificationType, boolean isReminderSent) {
-        super(title, description, startDate, endDate, startTime, endTime, prioeity, isCompleted);
+    public ReminderSchedule(int userId, String title, String description, String startDate, String endDate, String startTime, String endTime, String prioeity, boolean isCompleted, String reminderTime, String reminderMessage, String notificationType, boolean isReminderSent) {
+        super(userId, title, description, startDate, endDate, startTime, endTime, prioeity, isCompleted);
         init(reminderTime, reminderMessage, notificationType, isReminderSent);
     }
 
-    public ReminderSchedule(int id, String title, String description, String startDate, String endDate, String startTime, String endTime, String prioeity, boolean isCompleted, String reminderTime, String reminderMessage, String notificationType, boolean isReminderSent) {
-        super(id, title, description, startDate, endDate, startTime, endTime, prioeity, isCompleted);
+    public ReminderSchedule(int id, int userId, String title, String description, String startDate, String endDate, String startTime, String endTime, String prioeity, boolean isCompleted, String reminderTime, String reminderMessage, String notificationType, boolean isReminderSent) {
+        super(id, userId, title, description, startDate, endDate, startTime, endTime, prioeity, isCompleted);
         init(reminderTime, reminderMessage, notificationType, isReminderSent);
     }
 
