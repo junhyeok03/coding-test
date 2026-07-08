@@ -11,9 +11,12 @@ public class User {
 
 
     public User(String name, String email) {
+        validateName(name);
+        validateEmail(email);
+
         this.id = nextId++;
-        this.name = name;
-        this.email = email;
+        this.name = name.trim();
+        this.email = email.trim();
         this.createdAt = LocalDateTime.now();
         this.updatedAt = LocalDateTime.now();
     }
@@ -22,8 +25,8 @@ public class User {
         validateName(name);
         validateEmail(email);
 
-        this.name = name;
-        this.email = email;
+        this.name = name.trim();
+        this.email = email.trim();
         this.updatedAt = LocalDateTime.now();
     }
 
@@ -62,4 +65,5 @@ public class User {
         System.out.println("생성일시 : " +  createdAt);
         System.out.println("수정일시 : " + updatedAt);
     }
+
 }

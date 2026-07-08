@@ -12,10 +12,15 @@ import java.util.Scanner;
 public class ScheduleManager {
     List<ScheduleItem> scheduleItemList = new ArrayList<>();
     private final Scanner sc;
-    private User selectedUser;
+    private UserManager userManager;
 
     public ScheduleManager(Scanner sc) {
         this.sc = sc;
+    }
+
+    public ScheduleManager(Scanner sc, UserManager userManager) {
+        this.sc = sc;
+        this.userManager = userManager;
     }
 
     public void addSchedule() {
@@ -52,12 +57,19 @@ public class ScheduleManager {
 
     // 실제 등록을 처리하는 메서드
     public void addSchedule(int scheduleType) {
-        if (selectedUser == null) {
-            System.out.println("먼저 사용자를 선택하세요.");
+        System.out.print("사용자 id : ");
+        int userId = readInt();
+        if (userId == -1) {
+            System.out.println("userId는 숫자로 입력해야 합니다.");
             return;
         }
 
-        ScheduleItem scheduleItem = createSchedule(scheduleType);
+        if (userManager == null || !userManager.existsUser(userId)) {
+            System.out.println("해당 사용자가 존재하지 않습니다.");
+            return;
+        }
+
+        ScheduleItem scheduleItem = createSchedule(scheduleType, userId);
         if (scheduleItem == null) {
             return;
         }
@@ -72,8 +84,8 @@ public class ScheduleManager {
     }
 
     // 사용자에게 공통 정보를 입력받는 메서드
-    private ScheduleItem createSchedule(int scheduleType) {
-        return createSchedule(scheduleType, 0, selectedUser.getId(), false);
+    private ScheduleItem createSchedule(int scheduleType, int userId) {
+        return createSchedule(scheduleType, 0, userId, false);
     }
 
     private ScheduleItem createSchedule(int scheduleType, int id, int userId, boolean isCompleted) {
@@ -138,19 +150,26 @@ public class ScheduleManager {
         System.out.print("위치 : ");
         String location = sc.nextLine();
 
-        System.out.print("참가자 : ");
-        String participants = sc.nextLine();
+        System.out.print("회의 주최자 userId : ");
+        int hostUserId = readInt();
+        if (hostUserId == -1) {
+            throw new RuntimeException("회의 주최자 userId는 숫자로 입력해야 합니다.");
+        }
+        if (userManager == null || !userManager.existsUser(hostUserId)) {
+            throw new RuntimeException("회의 주최자가 존재하지 않습니다.");
+        }
+
+        System.out.print("참가자 userId 목록(쉼표로 구분) : ");
+        List<Integer> participantUserIds = parseParticipantUserIds(sc.nextLine());
+        validateParticipantUsers(participantUserIds);
 
         System.out.print("의제 : ");
         String agenda = sc.nextLine();
 
-        System.out.print("호스트 : ");
-        String host = sc.nextLine();
-
         if (id == 0) {
-            return new MeetingSchedule(userId, title, description, startDate, endDate, startTime, endTime, priority, isCompleted, location, participants, agenda, host);
+            return new MeetingSchedule(userId, title, description, startDate, endDate, startTime, endTime, priority, isCompleted, location, participantUserIds, agenda, hostUserId);
         }
-        return new MeetingSchedule(id, userId, title, description, startDate, endDate, startTime, endTime, priority, isCompleted, location, participants, agenda, host);
+        return new MeetingSchedule(id, userId, title, description, startDate, endDate, startTime, endTime, priority, isCompleted, location, participantUserIds, agenda, hostUserId);
     }
 
     private ScheduleItem createTaskSchedule(int id, int userId, String title, String description, String startDate, String endDate, String startTime, String endTime, String priority, boolean isCompleted) {
@@ -193,6 +212,35 @@ public class ScheduleManager {
         return new ReminderSchedule(id, userId, title, description, startDate, endDate, startTime, endTime, priority, isCompleted, reminderTime, reminderMessage, notificationType, false);
     }
 
+    private List<Integer> parseParticipantUserIds(String input) {
+        List<Integer> participantUserIds = new ArrayList<>();
+        if (input == null || input.trim().isEmpty()) {
+            throw new RuntimeException("참가자 userId를 입력해야 합니다.");
+        }
+
+        String[] values = input.split(",");
+        for (String value : values) {
+            try {
+                int participantUserId = Integer.parseInt(value.trim());
+                if (!participantUserIds.contains(participantUserId)) {
+                    participantUserIds.add(participantUserId);
+                }
+            } catch (NumberFormatException e) {
+                throw new RuntimeException("참가자 userId는 숫자로 입력해야 합니다.");
+            }
+        }
+
+        return participantUserIds;
+    }
+
+    private void validateParticipantUsers(List<Integer> participantUserIds) {
+        for (int participantUserId : participantUserIds) {
+            if (userManager == null || !userManager.existsUser(participantUserId)) {
+                throw new RuntimeException("존재하지 않는 참여자 id입니다 : " + participantUserId);
+            }
+        }
+    }
+
     public void displayAllSchedules() {
         if (scheduleItemList.isEmpty()) {
             System.out.println("등록된 일정이 없습니다.");
@@ -202,6 +250,32 @@ public class ScheduleManager {
         for (ScheduleItem scheduleItem : scheduleItemList) {
             scheduleItem.displayInfo();
             System.out.println();
+        }
+    }
+
+    public List<ScheduleItem> getScheduleItemList() {
+        return scheduleItemList;
+    }
+
+    public void displaySchedulesByUserId() {
+        System.out.print("조회할 사용자 id : ");
+        int userId = readInt();
+        if (userId == -1) {
+            System.out.println("userId는 숫자로 입력해야 합니다.");
+            return;
+        }
+
+        boolean found = false;
+        for (ScheduleItem scheduleItem : scheduleItemList) {
+            if (scheduleItem.getUserId() == userId) {
+                scheduleItem.displayInfo();
+                System.out.println();
+                found = true;
+            }
+        }
+
+        if (!found) {
+            System.out.println("해당 사용자의 일정이 없습니다.");
         }
     }
 
@@ -509,11 +583,16 @@ public class ScheduleManager {
 
     private boolean hasConflict(ScheduleItem target, int excludeIndex) {
         boolean conflicted = false;
+        List<Integer> targetUserIds = getInvolvedUserIds(target);
+
         for (int i = 0; i < scheduleItemList.size(); i++) {
             ScheduleItem scheduleItem = scheduleItemList.get(i);
             if (i != excludeIndex && isOverlapped(target, scheduleItem)) {
-                printConflictSchedule(scheduleItem);
-                conflicted = true;
+                List<Integer> conflictedUserIds = getSharedUserIds(targetUserIds, getInvolvedUserIds(scheduleItem));
+                if (!conflictedUserIds.isEmpty()) {
+                    printConflictSchedule(scheduleItem, conflictedUserIds);
+                    conflicted = true;
+                }
             }
         }
         return conflicted;
@@ -530,6 +609,42 @@ public class ScheduleManager {
         LocalDateTime itemEnd = LocalDateTime.of(scheduleItem.getEndDate(), scheduleItem.getEndTime());
 
         return targetStart.isBefore(itemEnd) && itemStart.isBefore(targetEnd);
+    }
+
+    private List<Integer> getInvolvedUserIds(ScheduleItem scheduleItem) {
+        List<Integer> userIds = new ArrayList<>();
+        addUniqueUserId(userIds, scheduleItem.getUserId());
+
+        if (scheduleItem instanceof MeetingSchedule) {
+            MeetingSchedule meetingSchedule = (MeetingSchedule) scheduleItem;
+            addUniqueUserId(userIds, meetingSchedule.getHostUserId());
+            for (int participantUserId : meetingSchedule.getParticipantUserIds()) {
+                addUniqueUserId(userIds, participantUserId);
+            }
+        }
+
+        return userIds;
+    }
+
+    private void addUniqueUserId(List<Integer> userIds, int userId) {
+        if (!userIds.contains(userId)) {
+            userIds.add(userId);
+        }
+    }
+
+    private List<Integer> getSharedUserIds(List<Integer> a, List<Integer> b) {
+        List<Integer> sharedUserIds = new ArrayList<>();
+        for (int userId : a) {
+            if (b.contains(userId)) {
+                sharedUserIds.add(userId);
+            }
+        }
+        return sharedUserIds;
+    }
+
+    private void printConflictSchedule(ScheduleItem scheduleItem, List<Integer> conflictedUserIds) {
+        System.out.println("충돌 사용자 id : " + conflictedUserIds);
+        printConflictSchedule(scheduleItem);
     }
 
     private void printConflictSchedule(ScheduleItem scheduleItem) {

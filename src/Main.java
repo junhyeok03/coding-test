@@ -3,26 +3,40 @@ import java.util.Scanner;
 public class Main {
     public static void main(String[] args) {
         Scanner sc = new Scanner(System.in);
-        ScheduleManager scheduleManager = new ScheduleManager(sc);
+
+        UserManager userManager = new UserManager(sc);
+        ScheduleManager scheduleManager = new ScheduleManager(sc, userManager);
 
         while (true) {
             System.out.println("=== 일정 관리 ===");
-            System.out.println("1. 일정 등록");
-            System.out.println("2. 전체 일정 조회");
-            System.out.println("3. 일정 상세 조회");
-            System.out.println("4. 일정 수정");
-            System.out.println("5. 일정 삭제");
-            System.out.println("6. 일정 완료 처리");
-            System.out.println("7. 제목 검색");
-            System.out.println("8. 날짜 검색");
-            System.out.println("9. 중요도 검색");
-            System.out.println("10. 날짜순 정렬");
-            System.out.println("11. 중요도순 정렬");
-            System.out.println("12. 완료 여부순 정렬");
-            System.out.println("13. 일정 충돌 확인");
-            System.out.println("14. 알림 실행");
-            System.out.println("15. 파일 저장");
-            System.out.println("16. 프로그램 종료");
+            System.out.println("1. 사용자 등록");
+            System.out.println("2. 전체 사용자 조회");
+            System.out.println("3. 사용자 상세 조회");
+            System.out.println("4. 사용자 수정");
+            System.out.println("5. 사용자 삭제");
+            System.out.println("6. 일정 등록");
+            System.out.println("7. 전체 일정 조회");
+            System.out.println("8. 사용자별 일정 조회");
+            System.out.println("9. 일정 상세 조회");
+            System.out.println("10. 일정 수정");
+            System.out.println("11. 일정 삭제");
+            System.out.println("12. 일정 완료 처리");
+            System.out.println("13. 제목 검색");
+            System.out.println("14. 날짜 검색");
+            System.out.println("15. 중요도 검색");
+            System.out.println("16. 날짜순 정렬");
+            System.out.println("17. 중요도순 정렬");
+            System.out.println("18. 완료 여부순 정렬");
+            System.out.println("19. 사용자별 제목 검색");
+            System.out.println("20. 사용자별 날짜 검색");
+            System.out.println("21. 사용자별 중요도 검색");
+            System.out.println("22. 사용자별 날짜순 정렬");
+            System.out.println("23. 사용자별 중요도순 정렬");
+            System.out.println("24. 사용자별 완료 여부순 정렬");
+            System.out.println("25. 일정 충돌 확인");
+            System.out.println("26. 알림 실행");
+            System.out.println("27. 파일 저장");
+            System.out.println("28. 프로그램 종료");
             System.out.print("선택 : ");
 
             int choice = readInt(sc);
@@ -33,51 +47,87 @@ public class Main {
 
             switch (choice) {
                 case 1:
-                    scheduleManager.addSchedule();
+                    userManager.addUser();
                     break;
                 case 2:
-                    scheduleManager.displayAllSchedules();
+                    userManager.displayAllUsers();
                     break;
                 case 3:
-                    scheduleManager.displayScheduleById();
+                    userManager.displayUserById();
                     break;
                 case 4:
-                    scheduleManager.updateSchedule();
+                    userManager.updateUser();
                     break;
                 case 5:
-                    scheduleManager.deleteSchedule();
+                    userManager.deleteUser();
                     break;
                 case 6:
-                    scheduleManager.completeSchedule();
+                    scheduleManager.addSchedule();
                     break;
                 case 7:
-                    scheduleManager.searchByTitle();
+                    scheduleManager.displayAllSchedules();
                     break;
                 case 8:
-                    scheduleManager.searchByDate();
+                    userManager.displayScheduleByUserId(scheduleManager.getScheduleItemList());
                     break;
                 case 9:
-                    scheduleManager.searchByPriority();
+                    scheduleManager.displayScheduleById();
                     break;
                 case 10:
-                    scheduleManager.sortByDate();
+                    scheduleManager.updateSchedule();
                     break;
                 case 11:
-                    scheduleManager.sortByPriority();
+                    scheduleManager.deleteSchedule();
                     break;
                 case 12:
-                    scheduleManager.sortByCompletion();
+                    scheduleManager.completeSchedule();
                     break;
                 case 13:
-                    scheduleManager.checkConflict();
+                    scheduleManager.searchByTitle();
                     break;
                 case 14:
-                    scheduleManager.runNotification();
+                    scheduleManager.searchByDate();
                     break;
                 case 15:
-                    scheduleManager.saveToFile();
+                    scheduleManager.searchByPriority();
                     break;
                 case 16:
+                    scheduleManager.sortByDate();
+                    break;
+                case 17:
+                    scheduleManager.sortByPriority();
+                    break;
+                case 18:
+                    scheduleManager.sortByCompletion();
+                    break;
+                case 19:
+                    userManager.searchByUserAndTitle(scheduleManager.getScheduleItemList());
+                    break;
+                case 20:
+                    System.out.println("아직 구현되지 않은 기능입니다.");
+                    break;
+                case 21:
+                    userManager.searchByUserAndPriority(scheduleManager.getScheduleItemList());
+                    break;
+                case 22:
+                    userManager.sortByUserAndDate(scheduleManager.getScheduleItemList());
+                    break;
+                case 23:
+                    userManager.sortByUserAndPriority(scheduleManager.getScheduleItemList());
+                    break;
+                case 24:
+                    userManager.sortByUserAndCompletion(scheduleManager.getScheduleItemList());
+                    break;
+                case 25:
+                    scheduleManager.checkConflict();
+                    break;
+                case 26:
+                    scheduleManager.runNotification();
+                    break;
+                case 27:
+                    scheduleManager.saveToFile();
+                    break;
+                case 28:
                     System.out.println("프로그램을 종료합니다.");
                     return;
                 default:
