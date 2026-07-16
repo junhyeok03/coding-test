@@ -24,19 +24,17 @@ public class Main {
             System.out.println("13. 제목 검색");
             System.out.println("14. 날짜 검색");
             System.out.println("15. 중요도 검색");
-            System.out.println("16. 날짜순 정렬");
-            System.out.println("17. 중요도순 정렬");
-            System.out.println("18. 완료 여부순 정렬");
-            System.out.println("19. 사용자별 제목 검색");
-            System.out.println("20. 사용자별 날짜 검색");
-            System.out.println("21. 사용자별 중요도 검색");
+            System.out.println("16. 사용자별 제목 검색");
+            System.out.println("17. 사용자별 날짜 검색");
+            System.out.println("18. 사용자별 중요도 검색");
+            System.out.println("19. 날짜순 정렬");
+            System.out.println("20. 중요도순 정렬");
+            System.out.println("21. 완료 여부순 정렬");
             System.out.println("22. 사용자별 날짜순 정렬");
             System.out.println("23. 사용자별 중요도순 정렬");
             System.out.println("24. 사용자별 완료 여부순 정렬");
-            System.out.println("25. 일정 충돌 확인");
-            System.out.println("26. 알림 실행");
-            System.out.println("27. 파일 저장");
-            System.out.println("28. 프로그램 종료");
+            System.out.println("25. 알림 실행");
+            System.out.println("26. 프로그램 종료");
             System.out.print("선택 : ");
 
             int choice = readInt(sc);
@@ -59,7 +57,7 @@ public class Main {
                     userManager.updateUser();
                     break;
                 case 5:
-                    userManager.deleteUser();
+                    userManager.deleteUser(scheduleManager.getScheduleItemList());
                     break;
                 case 6:
                     scheduleManager.addSchedule();
@@ -68,7 +66,7 @@ public class Main {
                     scheduleManager.displayAllSchedules();
                     break;
                 case 8:
-                    userManager.displayScheduleByUserId(scheduleManager.getScheduleItemList());
+                    userManager.displaySchedulesByUserId(scheduleManager.getScheduleItemList());
                     break;
                 case 9:
                     scheduleManager.displayScheduleById();
@@ -92,22 +90,22 @@ public class Main {
                     scheduleManager.searchByPriority();
                     break;
                 case 16:
-                    scheduleManager.sortByDate();
-                    break;
-                case 17:
-                    scheduleManager.sortByPriority();
-                    break;
-                case 18:
-                    scheduleManager.sortByCompletion();
-                    break;
-                case 19:
                     userManager.searchByUserAndTitle(scheduleManager.getScheduleItemList());
                     break;
+                case 17:
+                    userManager.searchByUserAndDate(scheduleManager.getScheduleItemList());
+                    break;
+                case 18:
+                    userManager.searchByUserAndPriority(scheduleManager.getScheduleItemList());
+                    break;
+                case 19:
+                    scheduleManager.sortByDate();
+                    break;
                 case 20:
-                    System.out.println("아직 구현되지 않은 기능입니다.");
+                    scheduleManager.sortByPriority();
                     break;
                 case 21:
-                    userManager.searchByUserAndPriority(scheduleManager.getScheduleItemList());
+                    scheduleManager.sortByCompletion();
                     break;
                 case 22:
                     userManager.sortByUserAndDate(scheduleManager.getScheduleItemList());
@@ -119,15 +117,9 @@ public class Main {
                     userManager.sortByUserAndCompletion(scheduleManager.getScheduleItemList());
                     break;
                 case 25:
-                    scheduleManager.checkConflict();
-                    break;
-                case 26:
                     scheduleManager.runNotification();
                     break;
-                case 27:
-                    scheduleManager.saveToFile();
-                    break;
-                case 28:
+                case 26:
                     System.out.println("프로그램을 종료합니다.");
                     return;
                 default:

@@ -283,6 +283,11 @@ public class ScheduleManager {
         for (ScheduleItem scheduleItem : scheduleItemList) {
             if (scheduleItem.getId() == id) {
                 scheduleItem.displayInfo();
+                User owner = userManager == null ? null : userManager.getUserById(scheduleItem.getUserId());
+                if (owner != null) {
+                    System.out.println("--- 소유 사용자 정보 ---");
+                    owner.displayInfo();
+                }
                 return;
             }
         }
@@ -313,7 +318,18 @@ public class ScheduleManager {
             if (currentSchedule.getId() == id) {
                 int scheduleType = getScheduleTypeNumber(currentSchedule);
                 System.out.println("새 정보를 입력하세요.");
-                ScheduleItem newScheduleItem = createSchedule(scheduleType, currentSchedule.getId(), currentSchedule.getUserId(), currentSchedule.isCompleted());
+                System.out.print("새 사용자 id : ");
+                int userId = readInt();
+                if (userId == -1) {
+                    System.out.println("userId는 숫자로 입력해야 합니다.");
+                    return;
+                }
+                if (userManager == null || !userManager.existsUser(userId)) {
+                    System.out.println("해당 사용자가 존재하지 않습니다.");
+                    return;
+                }
+
+                ScheduleItem newScheduleItem = createSchedule(scheduleType, currentSchedule.getId(), userId, currentSchedule.isCompleted());
 
                 if (newScheduleItem == null) {
                     System.out.println("수정이 취소되었습니다.");
